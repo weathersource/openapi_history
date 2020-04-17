@@ -1,0 +1,3722 @@
+openapi: 3.0.3
+info:
+  title: Weather Source History API
+  description: |
+    Daily and hourly historical weather data for Latitude/Longitude Points, Postcodes, Designated Marketing Areas, and OnPoint™ points. The Weather Source History API is built upon the [OnPoint™ Platform](https://weathersource.com/products/onpoint-platform/) that provides error-corrected, gap-filled, quality-checked, and homogenized analytics grade weather data. The OnPoint Grid is the highest resolution global grid on the market.
+
+    An API key is required to authorize requests. If you do not have a Weather Source API key [sign up for a free 30-day developer account](https://developer.weathersourceapis.com).
+  termsOfService: https://weathersource.com/company/legal/terms-of-service/
+  contact:
+    name: API Support
+    url: https://weathersource.com/support/
+    email: support@weathersource.com
+  version: 2.0.0
+servers:
+- url: https://history.weathersourceapis.com/v2
+security:
+- ApiKeyAuth: []
+tags:
+- name: points
+  description: Latitude/Longitude weather history
+- name: postcodes
+  description: Postcode weather history
+- name: dmas
+  description: Designated Marketing Area weather history
+- name: onpoints
+  description: OnPoint™ point weather history
+paths:
+  /points/{latitude},{longitude}/days/{date}:
+    get:
+      tags:
+      - points
+      summary: A day of weather history for a Latitude/Longitude point.
+      description: Returns a single day of historical weather data for a Latitude/Longitude
+        point.
+      parameters:
+      - name: latitude
+        in: path
+        description: A latitude value between -90° and 90°.
+        required: true
+        schema:
+          maximum: 90.0
+          minimum: -90.0
+          type: number
+          format: float
+          example: 38.8552
+      - name: longitude
+        in: path
+        description: A longitude value between -180° (West) and 180° (East).
+        required: true
+        schema:
+          maximum: 180.0
+          minimum: -180.0
+          type: number
+          format: float
+          example: -77.0513
+      - name: date
+        in: path
+        description: An date formatted as a RFC3339 date value.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a Latitude/Longitude
+            point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPointDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /points/{latitude},{longitude}/days/{dateStart},{dateEnd}:
+    get:
+      tags:
+      - points
+      summary: A contiguous range of daily weather history for a Latitude/Longitude
+        point.
+      description: Returns a contiguous range of daily historical weather data for
+        a Latitude/Longitude point.
+      parameters:
+      - name: latitude
+        in: path
+        description: A latitude value between -90° and 90°.
+        required: true
+        schema:
+          maximum: 90.0
+          minimum: -90.0
+          type: number
+          format: float
+          example: 38.8552
+      - name: longitude
+        in: path
+        description: A longitude value between -180° (West) and 180° (East).
+        required: true
+        schema:
+          maximum: 180.0
+          minimum: -180.0
+          type: number
+          format: float
+          example: -77.0513
+      - name: dateStart
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          before dateEnd.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: dateEnd
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          after dateStart.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a Latitude/Longitude
+            point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPointDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /points/{latitude},{longitude}/hours/{timestamp}:
+    get:
+      tags:
+      - points
+      summary: An hour of weather history for a Latitude/Longitude point.
+      description: Returns a single hour of historical weather data for a Latitude/Longitude
+        point.
+      parameters:
+      - name: latitude
+        in: path
+        description: A latitude value between -90° and 90°.
+        required: true
+        schema:
+          maximum: 90.0
+          minimum: -90.0
+          type: number
+          format: float
+          example: 38.8552
+      - name: longitude
+        in: path
+        description: A longitude value between -180° (West) and 180° (East).
+        required: true
+        schema:
+          maximum: 180.0
+          minimum: -180.0
+          type: number
+          format: float
+          example: -77.0513
+      - name: timestamp
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value. The UTC
+          offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a Latitude/Longitude
+            point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPointHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /points/{latitude},{longitude}/hours/{timestampStart},{timestampEnd}:
+    get:
+      tags:
+      - points
+      summary: A contiguous range of hourly weather history for a Latitude/Longitude
+        point.
+      description: Returns a contiguous range of hourly historical weather data for
+        a Latitude/Longitude point.
+      parameters:
+      - name: latitude
+        in: path
+        description: A latitude value between -90° and 90°.
+        required: true
+        schema:
+          maximum: 90.0
+          minimum: -90.0
+          type: number
+          format: float
+          example: 38.8552
+      - name: longitude
+        in: path
+        description: A longitude value between -180° (West) and 180° (East).
+        required: true
+        schema:
+          maximum: 180.0
+          minimum: -180.0
+          type: number
+          format: float
+          example: -77.0513
+      - name: timestampStart
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally before timestampEnd. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: timestampEnd
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally after timestampStart. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a Latitude/Longitude
+            point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPointHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /postcodes/{postcode},{countryCode}/days/{date}:
+    get:
+      tags:
+      - postcodes
+      summary: A day of weather history for a postcode.
+      description: Returns a single day of historical weather data for a postcode.
+      parameters:
+      - name: postcode
+        in: path
+        description: A postcode string.
+        required: true
+        schema:
+          type: string
+          example: "22222"
+      - name: countryCode
+        in: path
+        description: An uppercase 2-character [ISO 3166-1 Alpha-2 country code](https://developer.weathersourceapis.com/countries-with-postal-code-support/).
+        required: true
+        schema:
+          pattern: ^([A-Z]){2}$
+          type: string
+          example: US
+      - name: date
+        in: path
+        description: An date formatted as a RFC3339 date value.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a postcode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPostcodeDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /postcodes/{postcode},{countryCode}/days/{dateStart},{dateEnd}:
+    get:
+      tags:
+      - postcodes
+      summary: A contiguous range of daily weather history for a postcode.
+      description: Returns a contiguous range of daily historical weather data for
+        a postcode.
+      parameters:
+      - name: postcode
+        in: path
+        description: A postcode string.
+        required: true
+        schema:
+          type: string
+          example: "22222"
+      - name: countryCode
+        in: path
+        description: An uppercase 2-character [ISO 3166-1 Alpha-2 country code](https://developer.weathersourceapis.com/countries-with-postal-code-support/).
+        required: true
+        schema:
+          pattern: ^([A-Z]){2}$
+          type: string
+          example: US
+      - name: dateStart
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          before dateEnd.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: dateEnd
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          after dateStart.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a postcode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPostcodeDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /postcodes/{postcode},{countryCode}/hours/{timestamp}:
+    get:
+      tags:
+      - postcodes
+      summary: An hour of weather history for a postcode.
+      description: Returns a single hour of historical weather data for a postcode.
+      parameters:
+      - name: postcode
+        in: path
+        description: A postcode string.
+        required: true
+        schema:
+          type: string
+          example: "22222"
+      - name: countryCode
+        in: path
+        description: An uppercase 2-character [ISO 3166-1 Alpha-2 country code](https://developer.weathersourceapis.com/countries-with-postal-code-support/).
+        required: true
+        schema:
+          pattern: ^([A-Z]){2}$
+          type: string
+          example: US
+      - name: timestamp
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value. The UTC
+          offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a postcode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPostcodeHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /postcodes/{postcode},{countryCode}/hours/{timestampStart},{timestampEnd}:
+    get:
+      tags:
+      - postcodes
+      summary: A contiguous range of hourly weather history for a postcode.
+      description: Returns a contiguous range of hourly historical weather data for
+        a postcode.
+      parameters:
+      - name: postcode
+        in: path
+        description: A postcode string.
+        required: true
+        schema:
+          type: string
+          example: "22222"
+      - name: countryCode
+        in: path
+        description: An uppercase 2-character [ISO 3166-1 Alpha-2 country code](https://developer.weathersourceapis.com/countries-with-postal-code-support/).
+        required: true
+        schema:
+          pattern: ^([A-Z]){2}$
+          type: string
+          example: US
+      - name: timestampStart
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally before timestampEnd. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: timestampEnd
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally after timestampStart. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a postcode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyPostcodeHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /dmas/{dmaId}/days/{date}:
+    get:
+      tags:
+      - dmas
+      summary: A day of weather history for a DMA.
+      description: Returns a single day of historical weather data for a Designated
+        Marketing Area.
+      parameters:
+      - name: dmaId
+        in: path
+        description: A [Designated Marketing Area ID](https://developer.weathersourceapis.com/supported-dmas/).
+        required: true
+        schema:
+          type: integer
+          example: 529
+      - name: date
+        in: path
+        description: An date formatted as a RFC3339 date value.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a Designated Marketing
+            Area.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyDmaDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /dmas/{dmaId}/days/{dateStart},{dateEnd}:
+    get:
+      tags:
+      - dmas
+      summary: A contiguous range of daily weather history for a DMA.
+      description: Returns a contiguous range of daily historical weather data for
+        a Designated Marketing Area.
+      parameters:
+      - name: dmaId
+        in: path
+        description: A [Designated Marketing Area ID](https://developer.weathersourceapis.com/supported-dmas/).
+        required: true
+        schema:
+          type: integer
+          example: 529
+      - name: dateStart
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          before dateEnd.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: dateEnd
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          after dateStart.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for a Designated Marketing
+            Area.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyDmaDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /dmas/{dmaId}/hours/{timestamp}:
+    get:
+      tags:
+      - dmas
+      summary: An hour of weather history for a DMA
+      description: Returns a single hour of historical weather data for a Designated
+        Marketing Area.
+      parameters:
+      - name: dmaId
+        in: path
+        description: A [Designated Marketing Area ID](https://developer.weathersourceapis.com/supported-dmas/).
+        required: true
+        schema:
+          type: integer
+          example: 529
+      - name: timestamp
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value. The UTC
+          offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a Designated Marketing
+            Area.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyDmaHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /dmas/{dmaId}/hours/{timestampStart},{timestampEnd}:
+    get:
+      tags:
+      - dmas
+      summary: A contiguous range of hourly weather history for a DMA.
+      description: Returns a contiguous range of hourly historical weather data for
+        a Designated Marketing Area.
+      parameters:
+      - name: dmaId
+        in: path
+        description: A [Designated Marketing Area ID](https://developer.weathersourceapis.com/supported-dmas/).
+        required: true
+        schema:
+          type: integer
+          example: 529
+      - name: timestampStart
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally before timestampEnd. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: timestampEnd
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally after timestampStart. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for a Designated Marketing
+            Area.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyDmaHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /onpoints/{onpointId}/days/{date}:
+    get:
+      tags:
+      - onpoints
+      summary: A day of weather history for an OnPoint™ point.
+      description: Returns a single day of historical weather data for an OnPoint™
+        point.
+      parameters:
+      - name: onpointId
+        in: path
+        description: An OnPoint™ ID.
+        required: true
+        schema:
+          type: integer
+          example: 10725864
+      - name: date
+        in: path
+        description: An date formatted as a RFC3339 date value.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for an OnPoint™ point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyOnpointDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /onpoints/{onpointId}/days/{dateStart},{dateEnd}:
+    get:
+      tags:
+      - onpoints
+      summary: A contiguous range of daily weather history for an OnPoint™ point.
+      description: Returns a contiguous range of daily historical weather data for
+        an OnPoint™ point.
+      parameters:
+      - name: onpointId
+        in: path
+        description: An OnPoint™ ID.
+        required: true
+        schema:
+          type: integer
+          example: 10725864
+      - name: dateStart
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          before dateEnd.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: dateEnd
+        in: path
+        description: An date formatted as a RFC3339 date value that must occur temporally
+          after dateStart.
+        required: true
+        schema:
+          type: string
+          format: date
+          example: 2019-12-20
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The date field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are supported:
+          - all *(all fields)*
+          - allCldCvr *(derivatives of cldCvr)*
+          - allHum *(derivatives of relHum, spcHum)*
+          - allPrecip *(precip, snowDepth, snowfall)*
+          - allPres *(derivatives of mslPres, presTend, sfcPres)*
+          - allRad *(derivatives of radSolar)*
+          - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvrMin
+            - cldCvrAvg
+            - cldCvrMax
+            - dewPtMin
+            - dewPtAvg
+            - dewPtMax
+            - feelsLikeMin
+            - feelsLikeAvg
+            - feelsLikeMax
+            - heatIndexMin
+            - heatIndexAvg
+            - heatIndexMax
+            - mslPresMin
+            - mslPresAvg
+            - mslPresMax
+            - precip
+            - presTendMin
+            - presTendAvg
+            - presTendMax
+            - radSolarMin
+            - radSolarAvg
+            - radSolarMax
+            - radSolarTot
+            - relHumMin
+            - relHumAvg
+            - relHumMax
+            - sfcPresMin
+            - sfcPresAvg
+            - sfcPresMax
+            - snowDepth
+            - snowfall
+            - spcHumMin
+            - spcHumAvg
+            - spcHumMax
+            - tempMin
+            - tempAvg
+            - tempMax
+            - visMin
+            - visAvg
+            - visMax
+            - wetBulbMin
+            - wetBulbAvg
+            - wetBulbMax
+            - windChillMin
+            - windChillAvg
+            - windChillMax
+            - windDirAvg
+            - windDir80mAvg
+            - windDir100mAvg
+            - windSpdMin
+            - windSpdAvg
+            - windSpdMax
+            - windSpd80mMin
+            - windSpd80mAvg
+            - windSpd80mMax
+            - windSpd100mMin
+            - windSpd100mAvg
+            - windSpd100mMax
+            - precipHourCnt
+            - snowfallHourCnt
+            - freezingRainFlagCnt
+            - icePelletsFlagCnt
+            - rainFlagCnt
+            - snowFlagCnt
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Daily historical weather response for an OnPoint™ point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyOnpointDayObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /onpoints/{onpointId}/hours/{timestamp}:
+    get:
+      tags:
+      - onpoints
+      summary: An hour of weather history for an OnPoint™ point.
+      description: Returns a single hour of historical weather data for an OnPoint™
+        point.
+      parameters:
+      - name: onpointId
+        in: path
+        description: An OnPoint™ ID.
+        required: true
+        schema:
+          type: integer
+          example: 10725864
+      - name: timestamp
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value. The UTC
+          offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for an OnPoint™ point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyOnpointHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+  /onpoints/{onpointId}/hours/{timestampStart},{timestampEnd}:
+    get:
+      tags:
+      - onpoints
+      summary: A contiguous range of hourly weather history for an OnPoint™ point.
+      description: Returns a contiguous range of hourly historical weather data for
+        an OnPoint™ point.
+      parameters:
+      - name: onpointId
+        in: path
+        description: An OnPoint™ ID.
+        required: true
+        schema:
+          type: integer
+          example: 10725864
+      - name: timestampStart
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally before timestampEnd. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: timestampEnd
+        in: path
+        description: A timestamp formatted as an RFC3339 date-time value that must
+          occur temporally after timestampStart. The UTC offset is required.
+        required: true
+        schema:
+          type: string
+          format: date-time
+          example: 2019-12-20T23:00:00-05:00
+      - name: fields
+        in: query
+        description: |
+          A comma separated list of field names to return. The timestamp field is always returned.
+
+          **Limiting the query to needed fields will improve the query response time.**
+
+          In addition to individual field names, following convenience field groups are also supported:
+          - all *(all fields)*
+          - allCldCvr *(cldCvr)*
+          - allHum *(relHum, spcHum)*
+          - allPrecip *(precip, snowfall)*
+          - allPres *(mslPres, presTend, sfcPres)*
+          - allRad *(radSolar)*
+          - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+          - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+          - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+        required: true
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - provisionalFlag
+            - cldCvr
+            - dewPt
+            - feelsLike
+            - heatIndex
+            - mslPres
+            - precip
+            - presTend
+            - radSolar
+            - relHum
+            - sfcPres
+            - snowfall
+            - spcHum
+            - temp
+            - vis
+            - wetBulb
+            - windChill
+            - windDir
+            - windDir80m
+            - windDir100m
+            - windSpd
+            - windSpd80m
+            - windSpd100m
+            - freezingRainFlag
+            - icePelletsFlag
+            - rainFlag
+            - snowFlag
+            - all
+            - allCldCvr
+            - allHum
+            - allPrecip
+            - allPres
+            - allRad
+            - allTemp
+            - allWind
+            - popular
+      - name: unitScale
+        in: query
+        description: The unit scale for returned values.<br>
+        required: false
+        schema:
+          type: string
+          example: IMPERIAL
+          default: IMPERIAL
+          enum:
+          - IMPERIAL
+          - METRIC
+          - SI
+      responses:
+        "200":
+          description: Hourly historical weather response for an OnPoint™ point.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyOnpointHourObj'
+        default:
+          description: Unexpected error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorObj'
+components:
+  schemas:
+    historyDayArr:
+      type: array
+      description: An array of daily weather history objects.
+      items:
+        $ref: '#/components/schemas/historyDayObj'
+    historyDayObj:
+      required:
+      - date
+      type: object
+      properties:
+        date:
+          $ref: '#/components/schemas/date'
+        provisionalFlag:
+          $ref: '#/components/schemas/provisionalFlag'
+        cldCvrMin:
+          $ref: '#/components/schemas/cldCvrMin'
+        cldCvrAvg:
+          $ref: '#/components/schemas/cldCvrAvg'
+        cldCvrMax:
+          $ref: '#/components/schemas/cldCvrMax'
+        dewPtMin:
+          $ref: '#/components/schemas/dewPtMin'
+        dewPtAvg:
+          $ref: '#/components/schemas/dewPtAvg'
+        dewPtMax:
+          $ref: '#/components/schemas/dewPtMax'
+        feelsLikeMin:
+          $ref: '#/components/schemas/feelsLikeMin'
+        feelsLikeAvg:
+          $ref: '#/components/schemas/feelsLikeAvg'
+        feelsLikeMax:
+          $ref: '#/components/schemas/feelsLikeMax'
+        heatIndexMin:
+          $ref: '#/components/schemas/heatIndexMin'
+        heatIndexAvg:
+          $ref: '#/components/schemas/heatIndexAvg'
+        heatIndexMax:
+          $ref: '#/components/schemas/heatIndexMax'
+        mslPresMin:
+          $ref: '#/components/schemas/mslPresMin'
+        mslPresAvg:
+          $ref: '#/components/schemas/mslPresAvg'
+        mslPresMax:
+          $ref: '#/components/schemas/mslPresMax'
+        precip:
+          $ref: '#/components/schemas/precip'
+        presTendMin:
+          $ref: '#/components/schemas/presTendMin'
+        presTendAvg:
+          $ref: '#/components/schemas/presTendAvg'
+        presTendMax:
+          $ref: '#/components/schemas/presTendMax'
+        radSolarMin:
+          $ref: '#/components/schemas/radSolarMin'
+        radSolarAvg:
+          $ref: '#/components/schemas/radSolarAvg'
+        radSolarMax:
+          $ref: '#/components/schemas/radSolarMax'
+        radSolarTot:
+          $ref: '#/components/schemas/radSolarTot'
+        relHumMin:
+          $ref: '#/components/schemas/relHumMin'
+        relHumAvg:
+          $ref: '#/components/schemas/relHumAvg'
+        relHumMax:
+          $ref: '#/components/schemas/relHumMax'
+        sfcPresMin:
+          $ref: '#/components/schemas/sfcPresMin'
+        sfcPresAvg:
+          $ref: '#/components/schemas/sfcPresAvg'
+        sfcPresMax:
+          $ref: '#/components/schemas/sfcPresMax'
+        snowDepth:
+          $ref: '#/components/schemas/snowDepth'
+        snowfall:
+          $ref: '#/components/schemas/snowfall'
+        spcHumMin:
+          $ref: '#/components/schemas/spcHumMin'
+        spcHumAvg:
+          $ref: '#/components/schemas/spcHumAvg'
+        spcHumMax:
+          $ref: '#/components/schemas/spcHumMax'
+        tempMin:
+          $ref: '#/components/schemas/tempMin'
+        tempAvg:
+          $ref: '#/components/schemas/tempAvg'
+        tempMax:
+          $ref: '#/components/schemas/tempMax'
+        visMin:
+          $ref: '#/components/schemas/visMin'
+        visAvg:
+          $ref: '#/components/schemas/visAvg'
+        visMax:
+          $ref: '#/components/schemas/visMax'
+        wetBulbMin:
+          $ref: '#/components/schemas/wetBulbMin'
+        wetBulbAvg:
+          $ref: '#/components/schemas/wetBulbAvg'
+        wetBulbMax:
+          $ref: '#/components/schemas/wetBulbMax'
+        windChillMin:
+          $ref: '#/components/schemas/windChillMin'
+        windChillAvg:
+          $ref: '#/components/schemas/windChillAvg'
+        windChillMax:
+          $ref: '#/components/schemas/windChillMax'
+        windDirAvg:
+          $ref: '#/components/schemas/windDirAvg'
+        windDir80mAvg:
+          $ref: '#/components/schemas/windDir80mAvg'
+        windDir100mAvg:
+          $ref: '#/components/schemas/windDir100mAvg'
+        windSpdMin:
+          $ref: '#/components/schemas/windSpdMin'
+        windSpdAvg:
+          $ref: '#/components/schemas/windSpdAvg'
+        windSpdMax:
+          $ref: '#/components/schemas/windSpdMax'
+        windSpd80mMin:
+          $ref: '#/components/schemas/windSpd80mMin'
+        windSpd80mAvg:
+          $ref: '#/components/schemas/windSpd80mAvg'
+        windSpd80mMax:
+          $ref: '#/components/schemas/windSpd80mMax'
+        windSpd100mMin:
+          $ref: '#/components/schemas/windSpd100mMin'
+        windSpd100mAvg:
+          $ref: '#/components/schemas/windSpd100mAvg'
+        windSpd100mMax:
+          $ref: '#/components/schemas/windSpd100mMax'
+        precipHourCnt:
+          $ref: '#/components/schemas/precipHourCnt'
+        snowfallHourCnt:
+          $ref: '#/components/schemas/snowfallHourCnt'
+        freezingRainFlagCnt:
+          $ref: '#/components/schemas/freezingRainFlagCnt'
+        icePelletsFlagCnt:
+          $ref: '#/components/schemas/icePelletsFlagCnt'
+        rainFlagCnt:
+          $ref: '#/components/schemas/rainFlagCnt'
+        snowFlagCnt:
+          $ref: '#/components/schemas/snowFlagCnt'
+      description: A daily weather history object.
+    historyHourArr:
+      type: array
+      description: An array of hourly weather history objects.
+      items:
+        $ref: '#/components/schemas/historyHourObj'
+    historyHourObj:
+      required:
+      - timestamp
+      type: object
+      properties:
+        timestamp:
+          $ref: '#/components/schemas/timestamp'
+        provisionalFlag:
+          $ref: '#/components/schemas/provisionalFlag'
+        cldCvr:
+          $ref: '#/components/schemas/cldCvr'
+        dewPt:
+          $ref: '#/components/schemas/dewPt'
+        feelsLike:
+          $ref: '#/components/schemas/feelsLike'
+        heatIndex:
+          $ref: '#/components/schemas/heatIndex'
+        mslPres:
+          $ref: '#/components/schemas/mslPres'
+        precip:
+          $ref: '#/components/schemas/precip'
+        presTend:
+          $ref: '#/components/schemas/presTend'
+        radSolar:
+          $ref: '#/components/schemas/radSolar'
+        relHum:
+          $ref: '#/components/schemas/relHum'
+        sfcPres:
+          $ref: '#/components/schemas/sfcPres'
+        snowfall:
+          $ref: '#/components/schemas/snowfall'
+        spcHum:
+          $ref: '#/components/schemas/spcHum'
+        temp:
+          $ref: '#/components/schemas/temp'
+        vis:
+          $ref: '#/components/schemas/vis'
+        wetBulb:
+          $ref: '#/components/schemas/wetBulb'
+        windChill:
+          $ref: '#/components/schemas/windChill'
+        windDir:
+          $ref: '#/components/schemas/windDir'
+        windDir80m:
+          $ref: '#/components/schemas/windDir80m'
+        windDir100m:
+          $ref: '#/components/schemas/windDir100m'
+        windSpd:
+          $ref: '#/components/schemas/windSpd'
+        windSpd80m:
+          $ref: '#/components/schemas/windSpd80m'
+        windSpd100m:
+          $ref: '#/components/schemas/windSpd100m'
+        freezingRainFlag:
+          $ref: '#/components/schemas/freezingRainFlag'
+        icePelletsFlag:
+          $ref: '#/components/schemas/icePelletsFlag'
+        rainFlag:
+          $ref: '#/components/schemas/rainFlag'
+        snowFlag:
+          $ref: '#/components/schemas/snowFlag'
+      description: An hourly weather history object.
+    historyPointDayObj:
+      required:
+      - dateRange
+      - fieldList
+      - history
+      - location
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/pointObj'
+        dateRange:
+          $ref: '#/components/schemas/dateRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListDayObj'
+        history:
+          $ref: '#/components/schemas/historyDayArr'
+      description: Daily Latitude/Longitude historical weather object
+    historyPointHourObj:
+      required:
+      - fieldList
+      - history
+      - location
+      - timestampRange
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/pointObj'
+        timestampRange:
+          $ref: '#/components/schemas/timestampRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListHourObj'
+        history:
+          $ref: '#/components/schemas/historyHourArr'
+      description: Hourly Latitude/Longitude historical weather object
+    historyPostcodeDayObj:
+      required:
+      - dateRange
+      - fieldList
+      - history
+      - location
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/postcodeObj'
+        dateRange:
+          $ref: '#/components/schemas/dateRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListDayObj'
+        history:
+          $ref: '#/components/schemas/historyDayArr'
+      description: Daily Postcode historical weather object
+    historyPostcodeHourObj:
+      required:
+      - fieldList
+      - history
+      - location
+      - timestampRange
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/postcodeObj'
+        timestampRange:
+          $ref: '#/components/schemas/timestampRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListHourObj'
+        history:
+          $ref: '#/components/schemas/historyHourArr'
+      description: Hourly Postcode historical weather object
+    historyDmaDayObj:
+      required:
+      - dateRange
+      - fieldList
+      - history
+      - location
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/dmaObj'
+        dateRange:
+          $ref: '#/components/schemas/dateRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListDayObj'
+        history:
+          $ref: '#/components/schemas/historyDayArr'
+      description: Daily Designated Marketing Area historical weather object
+    historyDmaHourObj:
+      required:
+      - fieldList
+      - history
+      - location
+      - timestampRange
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/dmaObj'
+        timestampRange:
+          $ref: '#/components/schemas/timestampRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListHourObj'
+        history:
+          $ref: '#/components/schemas/historyHourArr'
+      description: Hourly Designated Marketing Area historical weather object
+    historyOnpointDayObj:
+      required:
+      - dateRange
+      - fieldList
+      - history
+      - location
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/onpointObj'
+        dateRange:
+          $ref: '#/components/schemas/dateRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListDayObj'
+        history:
+          $ref: '#/components/schemas/historyDayArr'
+      description: Daily OnPoint™ historical weather object
+    historyOnpointHourObj:
+      required:
+      - fieldList
+      - history
+      - location
+      - timestampRange
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/onpointObj'
+        timestampRange:
+          $ref: '#/components/schemas/timestampRangeObj'
+        fieldList:
+          $ref: '#/components/schemas/fieldListHourObj'
+        history:
+          $ref: '#/components/schemas/historyHourArr'
+      description: Hourly OnPoint™ historical weather object
+    fieldListDayObj:
+      title: fieldListObj
+      required:
+      - fields
+      type: object
+      properties:
+        fields:
+          $ref: '#/components/schemas/fields'
+      description: A list of returned field names the associated units.
+      example:
+        fields:
+          date: 'Date as string: "YYYY-MM-DD"'
+          provisionalFlag: Boolean value
+          cldCvrAvg: Percent value in [0,100]
+          cldCvrMax: Percent value in [0,100]
+          cldCvrMin: Percent value in [0,100]
+          dewPtAvg: Fahrenheit
+          dewPtMax: Fahrenheit
+          dewPtMin: Fahrenheit
+          feelsLikeAvg: Fahrenheit
+          feelsLikeMax: Fahrenheit
+          feelsLikeMin: Fahrenheit
+          heatIndexAvg: Fahrenheit
+          heatIndexMax: Fahrenheit
+          heatIndexMin: Fahrenheit
+          mslPresAvg: Millibars
+          mslPresMax: Millibars
+          mslPresMin: Millibars
+          precip: Inches
+          presTendAvg: Millibars
+          presTendMax: Millibars
+          presTendMin: Millibars
+          radSolarAvg: Watts per Square Meter
+          radSolarMax: Watts per Square Meter
+          radSolarMin: Watts per Square Meter
+          radSolarTot: Watts per Square Meter
+          relHumAvg: Percent value in [0,100]
+          relHumMax: Percent value in [0,100]
+          relHumMin: Percent value in [0,100]
+          sfcPresAvg: Millibars
+          sfcPresMax: Millibars
+          sfcPresMin: Millibars
+          snowDepth: Inches
+          snowfall: Inches
+          spcHumAvg: Grams of Moisture per Kilograms of Air
+          spcHumMax: Grams of Moisture per Kilograms of Air
+          spcHumMin: Grams of Moisture per Kilograms of Air
+          tempAvg: Fahrenheit
+          tempMax: Fahrenheit
+          tempMin: Fahrenheit
+          visAvg: Miles
+          visMax: Miles
+          visMin: Miles
+          wetBulbAvg: Fahrenheit
+          wetBulbMax: Fahrenheit
+          wetBulbMin: Fahrenheit
+          windChillAvg: Fahrenheit
+          windChillMax: Fahrenheit
+          windChillMin: Fahrenheit
+          windDir100mAvg: Degrees [0,360] (0 = North)
+          windDir80mAvg: Degrees [0,360] (0 = North)
+          windDirAvg: Degrees [0,360] (0 = North)
+          windSpd100mAvg: Miles per Hour
+          windSpd100mMax: Miles per Hour
+          windSpd100mMin: Miles per Hour
+          windSpd80mAvg: Miles per Hour
+          windSpd80mMax: Miles per Hour
+          windSpd80mMin: Miles per Hour
+          windSpdAvg: Miles per Hour
+          windSpdMax: Miles per Hour
+          windSpdMin: Miles per Hour
+          precipHourCnt: Integer Count
+          snowfallHourCnt: Integer Count
+          freezingRainFlagCnt: Integer Count
+          icePelletsFlagCnt: Integer Count
+          rainFlagCnt: Integer Count
+          snowFlagCnt: Integer Count
+    fieldListHourObj:
+      title: fieldListObj
+      required:
+      - fields
+      type: object
+      properties:
+        fields:
+          $ref: '#/components/schemas/fields'
+      description: A list of returned field names the associated units.
+      example:
+        fields:
+          timestamp: 'Timestamp as string: RFC 3339'
+          provisionalFlag: Boolean value
+          cldCvr: Percent value in [0,100]
+          dewPt: Fahrenheit
+          feelsLike: Fahrenheit
+          heatIndex: Fahrenheit
+          mslPres: Millibars
+          precip: Inches
+          presTend: Millibars
+          radSolar: Watts per Square Meter
+          relHum: Percent value in [0,100]
+          sfcPres: Millibars
+          snowfall: Inches
+          spcHum: Grams of Moisture per Kilograms of Air
+          temp: Fahrenheit
+          vis: Miles
+          wetBulb: Fahrenheit
+          windChill: Fahrenheit
+          windDir: Degrees [0,360] (0 = North)
+          windDir100m: Degrees [0,360] (0 = North)
+          windDir80m: Degrees [0,360] (0 = North)
+          windSpd: Miles per Hour
+          windSpd100m: Miles per Hour
+          windSpd80m: Miles per Hour
+          freezingRainFlag: Boolean value
+          icePelletsFlag: Boolean value
+          rainFlag: Boolean value
+          snowFlag: Boolean value
+    provisionalFlag:
+      type: boolean
+      description: Provisional Flag indicates if the source data is provisional or
+        final.
+      example: true
+    cldCvr:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Cloud Cover as a percent value.
+      format: float
+      example: 100
+    cldCvrMin:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Minimum Cloud Cover as a percent value.
+      format: float
+      example: 22
+    cldCvrAvg:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Average Cloud Cover as a percent value.
+      format: float
+      example: 78
+    cldCvrMax:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Maximum Cloud Cover as a percent value.
+      format: float
+      example: 100
+    dewPt:
+      type: number
+      description: Dew Point in Degrees Fahrenheit (imperial), Celsius (metric), or
+        Kelvin (si).
+      format: float
+      example: 45.92
+    dewPtMin:
+      type: number
+      description: Minimum Dew Point in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 33.8
+    dewPtAvg:
+      type: number
+      description: Average Dew Point in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 43.5
+    dewPtMax:
+      type: number
+      description: Maximum Dew Point in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 50.6
+    feelsLike:
+      type: number
+      description: Feels Like Temperature in Degrees Fahrenheit (imperial), Celsius
+        (metric), or Kelvin (si).
+      format: float
+      example: 46.75
+    feelsLikeMin:
+      type: number
+      description: Minimum Feels Like Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 42.3
+    feelsLikeAvg:
+      type: number
+      description: Average Feels Like Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 49.8
+    feelsLikeMax:
+      type: number
+      description: Maximum Feels Like Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 55.2
+    heatIndex:
+      type: number
+      description: Heat Index in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 46.75
+    heatIndexMin:
+      type: number
+      description: Minimum Heat Index in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 43.5
+    heatIndexAvg:
+      type: number
+      description: Average Heat Index in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 50.2
+    heatIndexMax:
+      type: number
+      description: Maximum Heat Index in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 55.3
+    mslPres:
+      type: number
+      description: Mean Sea Level Pressure in millibars.
+      format: float
+      example: 1017.46
+    mslPresMin:
+      type: number
+      description: Minimum Mean Sea Level Pressure in millibars.
+      format: float
+      example: 1017.9
+    mslPresAvg:
+      type: number
+      description: Average Mean Sea Level Pressure in millibars.
+      format: float
+      example: 1020
+    mslPresMax:
+      type: number
+      description: Maximum Mean Sea Level Pressure in millibars.
+      format: float
+      example: 1021.9
+    precip:
+      type: number
+      description: Total precipitation in inches (imperial) or centimeters (metric,
+        si).
+      format: float
+      example: 0
+    presTend:
+      type: number
+      description: Pressure Tendency in millibars.
+      format: float
+      example: -0.67
+    presTendMin:
+      type: number
+      description: Minimum Pressure Tendency in millibars.
+      format: float
+      example: -1.5
+    presTendAvg:
+      type: number
+      description: Average Pressure Tendency in millibars.
+      format: float
+      example: 0.1
+    presTendMax:
+      type: number
+      description: Maximum Pressure Tendency in millibars.
+      format: float
+      example: 2.3
+    radSolar:
+      type: number
+      description: Solar Radiation in watts per square meter.
+      format: float
+      example: 0
+    radSolarMin:
+      type: number
+      description: Minimum Solar Radiation in watts per square meter.
+      format: float
+      example: 0
+    radSolarAvg:
+      type: number
+      description: Average Solar Radiation in watts per square meter.
+      format: float
+      example: 84.3
+    radSolarMax:
+      type: number
+      description: Maximum Solar Radiation in watts per square meter.
+      format: float
+      example: 436.5
+    radSolarTot:
+      type: number
+      description: Total Solar Radiation in watts per square meter.
+      format: float
+      example: 2023.1
+    relHum:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Relative humidity as a percent value.
+      format: float
+      example: 96.87
+    relHumMin:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Minimum Relative humidity as a percent value.
+      format: float
+      example: 62.1
+    relHumAvg:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Average Relative humidity as a percent value.
+      format: float
+      example: 79
+    relHumMax:
+      maximum: 100
+      minimum: 0
+      type: number
+      description: Maximum Relative humidity as a percent value.
+      format: float
+      example: 98
+    sfcPres:
+      type: number
+      description: Surface pressure in millibars.
+      format: float
+      example: 1013.83
+    sfcPresMin:
+      type: number
+      description: Minimum Surface pressure in millibars.
+      format: float
+      example: 1015.6
+    sfcPresAvg:
+      type: number
+      description: Average Surface pressure in millibars.
+      format: float
+      example: 1018.3
+    sfcPresMax:
+      type: number
+      description: Maximum Surface pressure in millibars.
+      format: float
+      example: 1020.8
+    snowDepth:
+      type: number
+      description: Total Snow depth in inches (imperial) or centimeters (metric, si).
+      format: float
+      example: 0
+    snowfall:
+      type: number
+      description: Total snowfall in inches (imperial) or centimeters (metric, si).
+      format: float
+      example: 0
+    spcHum:
+      type: number
+      description: Specific humidity in grams per kilograms.
+      format: float
+      example: 6.49
+    spcHumMin:
+      type: number
+      description: Minimum Specific humidity in grams per kilograms.
+      format: float
+      example: 4
+    spcHumAvg:
+      type: number
+      description: Average Specific humidity in grams per kilograms.
+      format: float
+      example: 6
+    spcHumMax:
+      type: number
+      description: Maximum Specific humidity in grams per kilograms.
+      format: float
+      example: 7.7
+    temp:
+      type: number
+      description: Temperature in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 46.75
+    tempMin:
+      type: number
+      description: Minimum Temperature in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 43.5
+    tempAvg:
+      type: number
+      description: Average Temperature in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 50.2
+    tempMax:
+      type: number
+      description: Maximum Temperature in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 55.3
+    vis:
+      type: number
+      description: Visibility in miles (imperial) or km (metric, si).
+      format: float
+      example: 5.93
+    visMin:
+      type: number
+      description: Minimum Visibility in miles (imperial) or km (metric, si).
+      format: float
+      example: 4
+    visAvg:
+      type: number
+      description: Average Visibility in miles (imperial) or km (metric, si).
+      format: float
+      example: 8.9
+    visMax:
+      type: number
+      description: Maximum Visibility in miles (imperial) or km (metric, si).
+      format: float
+      example: 12.3
+    wetBulb:
+      type: number
+      description: Wet Bulb Temperature in Degrees Fahrenheit (imperial), Celsius
+        (metric), or Kelvin (si).
+      format: float
+      example: 46.32
+    wetBulbMin:
+      type: number
+      description: Minimum Wet Bulb Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 39.5
+    wetBulbAvg:
+      type: number
+      description: Average Wet Bulb Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 47
+    wetBulbMax:
+      type: number
+      description: Maximum Wet Bulb Temperature in Degrees Fahrenheit (imperial),
+        Celsius (metric), or Kelvin (si).
+      format: float
+      example: 51
+    windChill:
+      type: number
+      description: Wind Chill in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 46.75
+    windChillMin:
+      type: number
+      description: Minimum Wind Chill in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 42.3
+    windChillAvg:
+      type: number
+      description: Average Wind Chill in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 49.8
+    windChillMax:
+      type: number
+      description: Maximum Wind Chill in Degrees Fahrenheit (imperial), Celsius (metric),
+        or Kelvin (si).
+      format: float
+      example: 55.2
+    windDir:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Wind direction at 10 meters in Degrees (0 or 360 = North, 90 =
+        East, South = 180, West = 270).
+      format: float
+      example: 302.6
+    windDirAvg:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Average Wind direction at 10 meters in Degrees (0 or 360 = North,
+        90 = East, South = 180, West = 270).
+      format: float
+      example: 354
+    windDir80m:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Wind direction at 80 meters in Degrees (0 or 360 = North, 90 =
+        East, South = 180, West = 270).
+      format: float
+      example: 111.89
+    windDir80mAvg:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Average Wind direction at 80 meters in Degrees (0 or 360 = North,
+        90 = East, South = 180, West = 270).
+      format: float
+      example: 334
+    windDir100m:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Wind direction at 100 meters in Degrees (0 or 360 = North, 90 =
+        East, South = 180, West = 270).
+      format: float
+      example: 148.96
+    windDir100mAvg:
+      maximum: 360
+      minimum: 0
+      type: number
+      description: Average Wind direction at 100 meters in Degrees (0 or 360 = North,
+        90 = East, South = 180, West = 270).
+      format: float
+      example: 334
+    windSpd:
+      type: number
+      description: Wind speed at 10 meters in miles per hour (imperial) or km/hour
+        (metric, si).
+      format: float
+      example: 0.84
+    windSpdMin:
+      type: number
+      description: Minimum Wind speed at 10 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 0.3
+    windSpdAvg:
+      type: number
+      description: Average Wind speed at 10 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 2.3
+    windSpdMax:
+      type: number
+      description: Maximum Wind speed at 10 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 5.1
+    windSpd80m:
+      type: number
+      description: Wind speed at 80 meters in miles per hour (imperial) or km/hour
+        (metric, si).
+      format: float
+      example: 4.38
+    windSpd80mMin:
+      type: number
+      description: Minimum Wind speed at 80 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 1.4
+    windSpd80mAvg:
+      type: number
+      description: Average Wind speed at 80 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 6.8
+    windSpd80mMax:
+      type: number
+      description: Maximum Wind speed at 80 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 11.6
+    windSpd100m:
+      type: number
+      description: Wind speed at 100 meters in miles per hour (imperial) or km/hour
+        (metric, si).
+      format: float
+      example: 6.66
+    windSpd100mMin:
+      type: number
+      description: Minimum Wind speed at 100 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 1.7
+    windSpd100mAvg:
+      type: number
+      description: Average Wind speed at 100 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 7.2
+    windSpd100mMax:
+      type: number
+      description: Maximum Wind speed at 100 meters in miles per hour (imperial) or
+        km/hour (metric, si).
+      format: float
+      example: 12.1
+    precipHourCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of the number of hours within this day with non-zero precipitation.
+      format: int32
+      example: 0
+    snowfallHourCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of the number of hours with non-zero snowfall.
+      format: int32
+      example: 0
+    freezingRainFlag:
+      type: boolean
+      description: Freezing Rain Flag indicates presence of freezing rain within this
+        hour.
+      example: false
+    freezingRainFlagCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of flags within this day that indicate freezing rain.
+      format: int32
+      example: 0
+    icePelletsFlag:
+      type: boolean
+      description: Ice Pellets Flag indicates presence of ice pellets within this
+        hour.
+      example: false
+    icePelletsFlagCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of flags within this day that indicate ice pellets.
+      format: int32
+      example: 0
+    rainFlag:
+      type: boolean
+      description: Rain Flag indicates presence of rain within this hour.
+      example: false
+    rainFlagCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of flags within this day that indicate rain.
+      format: int32
+      example: 0
+    snowFlag:
+      type: boolean
+      description: Snow Flag indicates presence of snow within this hour.
+      example: false
+    snowFlagCnt:
+      maximum: 25
+      minimum: 0
+      type: integer
+      description: Count of flags within this day that indicate snow.
+      format: int32
+      example: 0
+    errorObj:
+      type: object
+      properties:
+        errorCode:
+          maximum: 600
+          minimum: 100
+          type: integer
+          example: 404
+        errorMessage:
+          type: string
+          example: NOT FOUND. Item not found.
+    date:
+      type: string
+      description: A date formatted as an RFC3339 date value.
+      format: date
+      example: 2019-12-20
+    timestamp:
+      type: string
+      description: A timestamp formatted as an RFC3339 date-time value.
+      format: date-time
+      example: 2019-12-20T23:00:00-05:00
+    pointObj:
+      required:
+      - boundingPoints
+      - grid
+      - latitude
+      - longitude
+      - timezone
+      type: object
+      properties:
+        latitude:
+          $ref: '#/components/schemas/latitude'
+        longitude:
+          $ref: '#/components/schemas/longitude'
+        timezone:
+          $ref: '#/components/schemas/timezone'
+        countryCode:
+          $ref: '#/components/schemas/countryCode'
+        countryName:
+          $ref: '#/components/schemas/countryName'
+        subdivCode:
+          $ref: '#/components/schemas/subdivCode'
+        subdivName:
+          $ref: '#/components/schemas/subdivName'
+        boundingPoints:
+          $ref: '#/components/schemas/boundingPoints'
+        grid:
+          $ref: '#/components/schemas/grid'
+      description: Metadata object for a postcode
+    latitude:
+      maximum: 90.0
+      minimum: -90.0
+      type: number
+      description: A latitude value between -90° and 90°.
+      format: float
+      example: 38.8552
+    longitude:
+      maximum: 180.0
+      minimum: -180.0
+      type: number
+      description: A longitude value between -180° (West) and 180° (East).
+      format: float
+      example: -77.0513
+    timezone:
+      type: string
+      description: An Olson timezone ID.
+      example: America/New_York
+    countryCode:
+      type: string
+      description: An [ISO 3166-1 Alpha-2 country code](https://developer.weathersourceapis.com/countries-with-postal-code-support/).
+      example: US
+    countryName:
+      type: string
+      description: A common country name.
+      example: United States of America
+    subdivCode:
+      type: string
+      description: An ISO 3166-2 country subdivision code.
+      example: US-VA
+    subdivName:
+      type: string
+      description: A common country subdivision name.
+      example: Virginia
+    boundingPoints:
+      type: array
+      description: A list of OnPoint™ points related to the location
+      items:
+        $ref: '#/components/schemas/boundingPoints_inner'
+    onpointId:
+      type: integer
+      description: An OnPoint™ ID.
+      example: 10725864
+    grid:
+      type: string
+      description: The OnPoint™ grid on which the resource exists.
+      example: NORTH_AMERICA_GRID
+      enum:
+      - GLOBAL_GRID
+      - NORTH_AMERICA_GRID
+    distance:
+      type: number
+      description: A distance from the provided point in miles.
+      format: float
+      example: 2.6772
+    dateRangeObj:
+      required:
+      - dateEnd
+      - dateStart
+      type: object
+      properties:
+        dateStart:
+          $ref: '#/components/schemas/dateStart'
+        dateEnd:
+          $ref: '#/components/schemas/dateEnd'
+      description: A date range object.
+    dateStart:
+      type: string
+      description: A start date for a date range formatted as an RFC3339 date value.
+      format: date
+      example: 2019-12-20
+    dateEnd:
+      type: string
+      description: An end date for a date range formatted as an RFC3339 date value.
+      format: date
+      example: 2019-12-20
+    timestampRangeObj:
+      required:
+      - timestampEnd
+      - timestampStart
+      type: object
+      properties:
+        timestampStart:
+          $ref: '#/components/schemas/timestampStart'
+        timestampEnd:
+          $ref: '#/components/schemas/timestampEnd'
+      description: A timestamp range object
+    timestampStart:
+      type: string
+      description: A start timestamp for a timestamp range formatted as an RFC3339
+        date-time value.
+      format: date-time
+      example: 2019-12-20T23:00:00-05:00
+    timestampEnd:
+      type: string
+      description: An end timestamp for a timestamp range formatted as an RFC3339
+        date-time value.
+      format: date-time
+      example: 2019-12-20T23:00:00-05:00
+    postcodeObj:
+      required:
+      - boundingPoints
+      - countryCode
+      - countryName
+      - grid
+      - latitude
+      - latitude
+      - longitude
+      - postcode
+      - timezone
+      type: object
+      properties:
+        postcode:
+          $ref: '#/components/schemas/postcode'
+        latitude:
+          $ref: '#/components/schemas/latitude'
+        longitude:
+          $ref: '#/components/schemas/longitude'
+        timezone:
+          $ref: '#/components/schemas/timezone'
+        countryCode:
+          $ref: '#/components/schemas/countryCode'
+        countryName:
+          $ref: '#/components/schemas/countryName'
+        subdivCode:
+          $ref: '#/components/schemas/subdivCode'
+        subdivName:
+          $ref: '#/components/schemas/subdivName'
+        boundingPoints:
+          $ref: '#/components/schemas/boundingPoints'
+        grid:
+          $ref: '#/components/schemas/grid'
+      description: A postcode location metadata object
+    postcode:
+      type: string
+      description: A postcode string.
+      example: "22222"
+    dmaObj:
+      required:
+      - countryCode
+      - countryName
+      - dmaId
+      - dmaName
+      - grid
+      - population
+      - samplePoints
+      - timezone
+      type: object
+      properties:
+        dmaId:
+          $ref: '#/components/schemas/dmaId'
+        dmaName:
+          $ref: '#/components/schemas/dmaName'
+        timezone:
+          $ref: '#/components/schemas/timezone'
+        population:
+          $ref: '#/components/schemas/population'
+        countryCode:
+          $ref: '#/components/schemas/countryCode'
+        countryName:
+          $ref: '#/components/schemas/countryName'
+        samplePoints:
+          $ref: '#/components/schemas/samplePoints'
+        grid:
+          $ref: '#/components/schemas/grid'
+      description: A Designated Marketing Area location metadata object
+    dmaId:
+      type: integer
+      description: A [Designated Marketing Area ID](https://developer.weathersourceapis.com/supported-dmas/).
+      example: 529
+    dmaName:
+      type: string
+      description: A Designated Marketing Area name.
+      example: Louisville
+    population:
+      type: integer
+      description: The population as represented in the 2010 census.
+      example: 1584746
+    samplePoints:
+      type: array
+      description: A list of OnPoint™ points used for interpolation for the Designated
+        Marketing Area. These points are the OnPoint™ ID closest to the centroid of
+        the 10 most populous  postcodes within the target DMA.
+      items:
+        $ref: '#/components/schemas/samplePoints_inner'
+    distancePop:
+      type: integer
+      description: The difference in population for the whole Designated Marketing
+        Area and the population for the postcode represented by this sample point.
+      example: 1536552
+    onpointObj:
+      required:
+      - grid
+      - latitude
+      - longitude
+      - onpointId
+      - timezone
+      type: object
+      properties:
+        onpointId:
+          $ref: '#/components/schemas/onpointId'
+        latitude:
+          $ref: '#/components/schemas/latitude'
+        longitude:
+          $ref: '#/components/schemas/longitude'
+        timezone:
+          $ref: '#/components/schemas/timezone'
+        countryCode:
+          $ref: '#/components/schemas/countryCode'
+        countryName:
+          $ref: '#/components/schemas/countryName'
+        subdivCode:
+          $ref: '#/components/schemas/subdivCode'
+        subdivName:
+          $ref: '#/components/schemas/subdivName'
+        grid:
+          $ref: '#/components/schemas/grid'
+      description: An OnPoint™ point location metadata object
+    fields:
+      type: object
+      additionalProperties:
+        type: string
+        description: Unit value for field identified in the related key.
+        example: Fahrenheit
+    boundingPoints_inner:
+      required:
+      - distance
+      - grid
+      - latitude
+      - longitude
+      - onpointId
+      type: object
+      properties:
+        onpointId:
+          $ref: '#/components/schemas/onpointId'
+        latitude:
+          $ref: '#/components/schemas/latitude'
+        longitude:
+          $ref: '#/components/schemas/longitude'
+        grid:
+          $ref: '#/components/schemas/grid'
+        distance:
+          $ref: '#/components/schemas/distance'
+    samplePoints_inner:
+      required:
+      - distance
+      - grid
+      - latitude
+      - longitude
+      - onpointId
+      type: object
+      properties:
+        onpointId:
+          $ref: '#/components/schemas/onpointId'
+        latitude:
+          $ref: '#/components/schemas/latitude'
+        longitude:
+          $ref: '#/components/schemas/longitude'
+        grid:
+          $ref: '#/components/schemas/grid'
+        distance:
+          $ref: '#/components/schemas/distancePop'
+  parameters:
+    fieldsDay:
+      name: fields
+      in: query
+      description: |
+        A comma separated list of field names to return. The date field is always returned.
+
+        **Limiting the query to needed fields will improve the query response time.**
+
+        In addition to individual field names, following convenience field groups are supported:
+        - all *(all fields)*
+        - allCldCvr *(derivatives of cldCvr)*
+        - allHum *(derivatives of relHum, spcHum)*
+        - allPrecip *(precip, snowDepth, snowfall)*
+        - allPres *(derivatives of mslPres, presTend, sfcPres)*
+        - allRad *(derivatives of radSolar)*
+        - allTemp *(derivatives of dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+        - allWind *(derivatives of windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+        - popular *(derivatives of cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - provisionalFlag
+          - cldCvrMin
+          - cldCvrAvg
+          - cldCvrMax
+          - dewPtMin
+          - dewPtAvg
+          - dewPtMax
+          - feelsLikeMin
+          - feelsLikeAvg
+          - feelsLikeMax
+          - heatIndexMin
+          - heatIndexAvg
+          - heatIndexMax
+          - mslPresMin
+          - mslPresAvg
+          - mslPresMax
+          - precip
+          - presTendMin
+          - presTendAvg
+          - presTendMax
+          - radSolarMin
+          - radSolarAvg
+          - radSolarMax
+          - radSolarTot
+          - relHumMin
+          - relHumAvg
+          - relHumMax
+          - sfcPresMin
+          - sfcPresAvg
+          - sfcPresMax
+          - snowDepth
+          - snowfall
+          - spcHumMin
+          - spcHumAvg
+          - spcHumMax
+          - tempMin
+          - tempAvg
+          - tempMax
+          - visMin
+          - visAvg
+          - visMax
+          - wetBulbMin
+          - wetBulbAvg
+          - wetBulbMax
+          - windChillMin
+          - windChillAvg
+          - windChillMax
+          - windDirAvg
+          - windDir80mAvg
+          - windDir100mAvg
+          - windSpdMin
+          - windSpdAvg
+          - windSpdMax
+          - windSpd80mMin
+          - windSpd80mAvg
+          - windSpd80mMax
+          - windSpd100mMin
+          - windSpd100mAvg
+          - windSpd100mMax
+          - precipHourCnt
+          - snowfallHourCnt
+          - freezingRainFlagCnt
+          - icePelletsFlagCnt
+          - rainFlagCnt
+          - snowFlagCnt
+          - all
+          - allCldCvr
+          - allHum
+          - allPrecip
+          - allPres
+          - allRad
+          - allTemp
+          - allWind
+          - popular
+    fieldsHour:
+      name: fields
+      in: query
+      description: |
+        A comma separated list of field names to return. The timestamp field is always returned.
+
+        **Limiting the query to needed fields will improve the query response time.**
+
+        In addition to individual field names, following convenience field groups are also supported:
+        - all *(all fields)*
+        - allCldCvr *(cldCvr)*
+        - allHum *(relHum, spcHum)*
+        - allPrecip *(precip, snowfall)*
+        - allPres *(mslPres, presTend, sfcPres)*
+        - allRad *(radSolar)*
+        - allTemp *(dewPt, feelsLike, heatIndex, temp, wetBulb, windChill)*
+        - allWind *(windDir, windDir80m, windDir100m, windSpd, windSpd80m, windSpd100m)*
+        - popular *(cldCvr, feelsLike, precip, relHum, snowfall, temp, windDir, windSpd)*
+      required: true
+      style: form
+      explode: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+          - provisionalFlag
+          - cldCvr
+          - dewPt
+          - feelsLike
+          - heatIndex
+          - mslPres
+          - precip
+          - presTend
+          - radSolar
+          - relHum
+          - sfcPres
+          - snowfall
+          - spcHum
+          - temp
+          - vis
+          - wetBulb
+          - windChill
+          - windDir
+          - windDir80m
+          - windDir100m
+          - windSpd
+          - windSpd80m
+          - windSpd100m
+          - freezingRainFlag
+          - icePelletsFlag
+          - rainFlag
+          - snowFlag
+          - all
+          - allCldCvr
+          - allHum
+          - allPrecip
+          - allPres
+          - allRad
+          - allTemp
+          - allWind
+          - popular
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      description: API key to authorize requests. If you do not have a Weather Source
+        API key [sign up for a free 30-day developer account](https://developer.weathersourceapis.com).
+      name: X-API-KEY
+      in: header
